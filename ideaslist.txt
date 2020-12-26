@@ -1,0 +1,8 @@
+registration, login, reset
+signout
+validation
+flashing
+recaptcha
+auto-logout
+prevent logging back in with the back button after log-out
+
