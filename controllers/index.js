@@ -15,6 +15,7 @@ var cookieParser = require('cookie-parser')
 app.use(bodyParser.urlencoded({
   extended: false
 }));
+app.use(bodyParser.json());
 
 // Passport configuration
 passport.use(new LocalStrategy({
