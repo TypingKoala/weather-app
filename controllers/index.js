@@ -51,5 +51,6 @@ app.use(flash());
 app.use(require('./home'));
 app.use(require('./login'));
 app.use(require('./register'));
+app.use(require('./reset'));
 
 module.exports = app;

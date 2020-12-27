@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express.Router();
-const axios = require('axios');
-const FormData = require('form-data');
+
+const { validateRecaptcha } = require('../middlewares/recaptcha');
 
 const {
   body,
@@ -11,29 +11,9 @@ const {
 // import user model
 const User = require('../models/user');
 
-// Set up Recaptcha
-var Recaptcha = require('express-recaptcha').RecaptchaV3;
-var recaptcha = new Recaptcha(process.env.RECAPTCHA_SITE_KEY, process.env.RECAPTCHA_SECRET_KEY, {callback:'cb'});
-
-app.get('/register', recaptcha.middleware.render, (req, res) => {
+app.get('/register', (req, res) => {
   res.render('register', { sitekey: process.env.RECAPTCHA_SITE_KEY });
 });
-
-const validateRecaptcha = (req, res, next) => {
-  // check recaptcha
-  var bodyFormData = new FormData();
-  bodyFormData.append('secret', process.env.RECAPTCHA_SECRET_KEY);
-  bodyFormData.append('response', req.body["g-recaptcha-response"]);
-  axios.post("https://www.google.com/recaptcha/api/siteverify", bodyFormData, {
-    headers: bodyFormData.getHeaders()
-  })
-    .then(resp => {
-      console.log(resp.data.success);
-      req.recaptchaVerified = resp.data.success;
-      next();
-    })
-    .catch(err => next(err));
-};
 
 app.post(
   '/register',

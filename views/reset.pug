@@ -5,20 +5,21 @@ head
   meta(name='viewport' content='width=device-width, initial-scale=1')
   // Bootstrap CSS
   link(href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1' crossorigin='anonymous')
-  title Login
+  title Password Reset
 .container.p-3
   .mx-auto(style='width: 70%;')
-    .card.mx-auto(style='width: 18rem;')
+    .card.mx-auto
       .card-body
         if messages.error
           .alert.alert-danger(role="alert") #{messages.error}
         if messages.success
           .alert.alert-success(role="alert") #{messages.success}
-        form(action="/login" method="post")
-          h5.card-title Login
+        form(action="/reset" method="post")
+          h5.card-title Reset Password
           .input-group.mb-3
             input.form-control(type='text' placeholder='Email' aria-label='email' id="email" name="email")
           .input-group.mb-3
-            input.form-control(type='password' placeholder='password' aria-label='password' id="password" name="password")
-          button.btn.btn-primary(type="submit") Login
+            .g-recaptcha(data-sitekey=sitekey)
+          button.btn.btn-primary(type="submit") Send Reset Email
 script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js' integrity='sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW' crossorigin='anonymous')
+script(src="https://www.google.com/recaptcha/api.js" async defer)
