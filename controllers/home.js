@@ -15,7 +15,7 @@ app.get('/', (req, res, next) => {
       const conditions = response.data.weather[0].main;
       const icon_url = `http://openweathermap.org/img/wn/${response.data.weather[0].icon}@4x.png`;
       res.cookie("zipcode", zip); // set zipcode cookie for next load
-      res.render('weather', { city, conditions, icon_url });
+      res.render('weather', { city, conditions, icon_url, user: req.user });
     })
     .catch(err => {
       next(err);
