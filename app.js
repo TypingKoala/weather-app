@@ -26,6 +26,9 @@ app.set('view engine', 'pug');
 // add cookie parser
 app.use(cookieParser());
 
+// serve static files
+app.use(express.static('public'));
+
 app.use(require('./controllers'));
 
 app.listen(port, () => {
