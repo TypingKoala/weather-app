@@ -27,7 +27,8 @@ const {
 const User = require('../models/user');
 
 // Password reset function
-function attemptPasswordReset(email) {
+// cb(err) will be called with True if error occurs
+function attemptPasswordReset(email, cb) {
   User.findOne({ email }, (err, user) => {
     if (err) return;
     if (!user) return;
@@ -50,12 +51,8 @@ function attemptPasswordReset(email) {
       subject: "Your Password Reset Link",
       html
     }, (err, info) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log(info);
-      }
-    })
+      cb(err);
+    });
   });
 }
 
@@ -70,7 +67,7 @@ app.post(
   '/reset',
   body('email').isEmail(),
   validateRecaptcha,
-  (req, res) => {
+  (req, res, next) => {
     // recaptcha check
     if (!req.recaptchaVerified) {
       req.flash('error', 'Not a human :(');
@@ -84,10 +81,14 @@ app.post(
       return res.redirect('/reset');
     }
 
-    attemptPasswordReset(req.body.email);
-
-    req.flash('success', 'If the email is associated with an existing account, a password reset link will be sent.');
-    res.redirect('/reset');
+    attemptPasswordReset(req.body.email, (err) => {
+      if (err) {
+        return next(err);
+      } else {
+        req.flash('success', 'If the email is associated with an existing account, a password reset link will be sent.');
+        res.redirect('/reset');
+      }
+    });
   });
 
 // Password change

@@ -31,6 +31,20 @@ app.use(express.static('public'));
 
 app.use(require('./controllers'));
 
+// 404 Error handler
+const notFoundHandler = (req, res, next) => {
+  return res.render('error', {errorMessage: "That page was not found."});
+};
+
+// General Error Handler
+const errorHandler = (err, req, res, next) => {
+  console.error(err.toString());
+  return res.render('error', {errorMessage: "An unexpected error occurred."});
+};
+
+app.use(notFoundHandler);
+app.use(errorHandler);
+
 app.listen(port, () => {
   console.log(`Weather app listening at http://localhost:${port}`);
 });
