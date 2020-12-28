@@ -1,6 +1,18 @@
 const express = require('express');
 const app = express.Router();
 const crypto = require('crypto');
+const pug = require('pug');
+
+// configure nodemailer
+const nodemailer = require('nodemailer');
+const mg = require('nodemailer-mailgun-transport');
+const auth = {
+  auth: {
+    api_key: process.env.MAILGUN_KEY,
+    domain: 'mg.jbui.me'
+  }
+};
+const nodemailerMailgun = nodemailer.createTransport(mg(auth));
 
 const {
   validateRecaptcha
@@ -24,6 +36,26 @@ function attemptPasswordReset(email) {
     const resetKey = crypto.randomBytes(32).toString('hex');
     user.resetKey = resetKey;
     user.save();
+
+    // generate email
+    const passwordResetLink = `http://localhost:3000/passwordchange/${resetKey}`;
+    const html = pug.renderFile('views/emailtemplate.pug', {
+      passwordResetLink
+    });
+
+    // send email
+    nodemailerMailgun.sendMail({
+      from: 'reset@jbui.me',
+      to: email,
+      subject: "Your Password Reset Link",
+      html
+    }, (err, info) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(info);
+      }
+    })
   });
 }
 
