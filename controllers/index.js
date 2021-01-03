@@ -4,13 +4,9 @@ const app = express.Router();
 const User = require('../models/user');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-var session = require('express-session');
 const bcrypt = require('bcrypt');
 
 var bodyParser = require('body-parser');
-
-const flash = require('express-flash');
-var cookieParser = require('cookie-parser')
 
 app.use(bodyParser.urlencoded({
   extended: false
@@ -33,39 +29,34 @@ passport.use(new LocalStrategy({
     });
   }
 ));
-passport.serializeUser(function(user, done) {
-  done(null, user._id);
-});
 
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    done(err, user);
+// implement JWT authentication
+var JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJwt = require('passport-jwt').ExtractJwt;
+var opts = {}
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = process.env.JWT_SECRET;
+opts.audience = process.env.JWT_AUD;
+passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
+  User.findOne({
+    email: jwt_payload.sub
+  }, function (err, user) {
+    if (err) {
+      return done(err, false);
+    }
+    if (user) {
+      return done(null, user);
+    } else {
+      return done(null, false);
+    }
   });
-});
-app.use(cookieParser(process.env.SESSION_SECRET));
-
-// initialize sessions and mongostore
-const MongoStore = require('connect-mongo')(session);
-const mongoose = require('mongoose');
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    maxAge: null
-  },
-  store: new MongoStore({
-    mongooseConnection: mongoose.connection
-  })
 }));
 
 app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
 
-app.use(require('./home'));
-app.use(require('./login'));
-app.use(require('./register'));
-app.use(require('./reset'));
+app.use('/api', require('./api'));
+// app.use(require('./login'));
+// app.use(require('./register'));
+// app.use(require('./reset'));
 
 module.exports = app;

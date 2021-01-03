@@ -1,5 +1,4 @@
 const express = require('express');
-var cookieParser = require('cookie-parser');
 
 // Load environment variables
 require('dotenv').config();
@@ -18,13 +17,10 @@ db.once('open', () => {
 });
 
 const app = express();
-const port = 3000;
+const port = 4000;
 
 // set rendering engine
 app.set('view engine', 'pug');
-
-// add cookie parser
-app.use(cookieParser());
 
 // serve static files
 app.use(express.static('public'));
@@ -33,13 +29,14 @@ app.use(require('./controllers'));
 
 // 404 Error handler
 const notFoundHandler = (req, res, next) => {
-  return res.render('error', {errorMessage: "That page was not found."});
+  return res.status(404).json({error: "Endpoint not found."});
 };
 
 // General Error Handler
 const errorHandler = (err, req, res, next) => {
   console.error(err.toString());
-  return res.render('error', {errorMessage: "An unexpected error occurred."});
+  return res.status(500).json({error: "An unexpected error occurred."});
+  
 };
 
 app.use(notFoundHandler);
